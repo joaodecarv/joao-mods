@@ -9,10 +9,11 @@ const PANE = 'subagentes'
 const TITLE = 'Subagentes'
 
 const agents = atom({ plugin: 'subagentes', key: 'agents' } as const, [] as AgentRow[])
-const choose = atom({ plugin: 'subagentes', key: 'choose' } as const, false)
+// On by default in every session; /subagentes escolher turns it off.
+const choose = atom({ plugin: 'subagentes', key: 'choose' } as const, true)
 const now = atom({ plugin: 'subagentes', key: 'now' } as const, 0)
 
-// Sent once to the model, beside the next prompt, after choose mode is turned on.
+// Sent once to the model, beside the next prompt, while choose mode is on.
 // Goes in the prompt's context rather than the system prompt, so the prompt cache survives.
 const HINT =
   'Subagent choice mode is on: on every Agent tool call, set `model` and `effort` to the pair you ' +
@@ -20,7 +21,7 @@ const HINT =
   'Prefer the cheapest pair that will get the task right.'
 
 // Module state: starts over on a reload, which only loses a pending hint and in-flight efforts.
-let hintPending = false
+let hintPending = true
 // Agent tool call id -> effort chosen; agent.spawn does not carry the effort.
 const efforts = new Map<string, string | undefined>()
 

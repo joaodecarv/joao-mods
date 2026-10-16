@@ -44,7 +44,7 @@ test('a spawned subagent shows in the pane and finishes', async ($, on) => {
   }
 })
 
-test('choose mode asks and rewrites the model and effort', async ($, on) => {
+test('choose mode is on by default: it asks and rewrites the model and effort', async ($, on) => {
   mock.clock(on)
   const asked: string[] = []
   on('tool.call', { tool: 'AskUserQuestion' }, ($, e) => {
@@ -58,7 +58,6 @@ test('choose mode asks and rewrites the model and effort', async ($, on) => {
     return { result: { status: 'async_launched' } as never }
   })
 
-  await $.command.run({ command: 'subagentes', args: 'escolher' } as never)
   await $.tool.call({
     tool: 'Agent',
     tool_use_id: 't2',
@@ -70,4 +69,31 @@ test('choose mode asks and rewrites the model and effort', async ($, on) => {
 
   expect(asked[0]).toMatch(/Issue 4/)
   expect(ran).toEqual({ model: 'sonnet', effort: 'high' })
+})
+
+test('escolher turns choose mode off', async ($, on) => {
+  mock.clock(on)
+  let asked = false
+  on('tool.call', { tool: 'AskUserQuestion' }, () => {
+    asked = true
+    return { result: {} as never }
+  })
+  let ran: { model?: string; effort?: string } = {}
+  on('tool.call', { tool: 'Agent' }, ($, e) => {
+    ran = { model: e.model, effort: e.effort }
+    return { result: { status: 'async_launched' } as never }
+  })
+
+  await $.command.run({ command: 'subagentes', args: 'escolher' } as never)
+  await $.tool.call({
+    tool: 'Agent',
+    tool_use_id: 't3',
+    description: 'Issue 5',
+    prompt: 'Implement issue 5',
+    model: 'opus',
+    effort: 'medium',
+  } as never)
+
+  expect(asked).toBe(false)
+  expect(ran).toEqual({ model: 'opus', effort: 'medium' })
 })

@@ -1,6 +1,6 @@
 {
   "name": "subagentes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Painel com o status de cada subagente e, quando ligado, escolha do modelo e esforço de cada um a partir da sugestão do Claude",
   "types": "./types/index.d.ts"
 }
