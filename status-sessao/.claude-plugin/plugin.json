@@ -1,6 +1,36 @@
 {
   "name": "status-sessao",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "One line above the prompt: repository and branch highlighted, context, 5h limit and weekly limit",
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "dance": {
+      "type": "string",
+      "title": "Clawd's dance",
+      "description": "How Clawd dances at the right end of the band",
+      "default": "random",
+      "options": [
+        "random",
+        "wave",
+        "shuffle",
+        "sway",
+        "party",
+        "still"
+      ]
+    },
+    "hat": {
+      "type": "string",
+      "title": "Clawd's hat",
+      "description": "What Clawd wears",
+      "default": "random",
+      "options": [
+        "random",
+        "none",
+        "tophat",
+        "party",
+        "crown",
+        "cap"
+      ]
+    }
+  }
 }

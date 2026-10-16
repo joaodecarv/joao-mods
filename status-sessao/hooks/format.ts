@@ -78,9 +78,6 @@ export function basename(dir: string): string {
   return dir.replace(/\/+$/, '').split('/').pop() || dir
 }
 
-/** The Claude Code mark's frames, as its spinner steps through them. */
-export const FRAMES = ['·', '✢', '✳', '✶', '✻', '✽', '✻', '✶', '✳', '✢'] as const
-
 /** What the engine draws when no other mod has anything for the band: a bare Box. */
 export function isEmpty(el: RenderElement): boolean {
   return el.type === 'Box' && !el.children?.length
