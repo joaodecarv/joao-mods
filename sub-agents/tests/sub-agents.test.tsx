@@ -4,9 +4,9 @@ import { CANCEL, options, parse } from '../hooks/choices'
 
 test('options offer the suggestion and its neighbours', async () => {
   const { labels, byLabel } = options({ model: 'opus', effort: 'high' })
-  expect(labels).toEqual(['opus · high (sugestão)', 'opus · medium', 'opus · xhigh', CANCEL])
+  expect(labels).toEqual(['opus · high (suggested)', 'opus · medium', 'opus · xhigh', CANCEL])
   expect(byLabel.get('opus · medium')).toEqual({ model: 'opus', effort: 'medium' })
-  expect(options({}).labels[0]).toBe('padrão do agente (sugestão)')
+  expect(options({}).labels[0]).toBe('agent default (suggested)')
 })
 
 test('typed answers are parsed', async () => {
@@ -17,7 +17,7 @@ test('typed answers are parsed', async () => {
 
 const PANE = {
   component: 'Pane',
-  requestId: 'subagentes',
+  requestId: 'sub-agents',
 } as const
 
 test('a spawned subagent shows in the pane and finishes', async ($, on) => {
@@ -37,7 +37,7 @@ test('a spawned subagent shows in the pane and finishes', async ($, on) => {
   })
 
   for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'subagentes', surface, ...PANE, props: {} as never })
+    const ui = await $.ui.mount({ plugin: 'sub-agents', surface, ...PANE, props: {} as never })
     expect(await ui.find({ type: 'Text', text: /Issue 3: login/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /sonnet/ })).toBeDefined()
     await ui.unmount()
@@ -71,7 +71,7 @@ test('choose mode is on by default: it asks and rewrites the model and effort', 
   expect(ran).toEqual({ model: 'sonnet', effort: 'high' })
 })
 
-test('escolher turns choose mode off', async ($, on) => {
+test('choose turns choose mode off', async ($, on) => {
   mock.clock(on)
   let asked = false
   on('tool.call', { tool: 'AskUserQuestion' }, () => {
@@ -84,7 +84,7 @@ test('escolher turns choose mode off', async ($, on) => {
     return { result: { status: 'async_launched' } as never }
   })
 
-  await $.command.run({ command: 'subagentes', args: 'escolher' } as never)
+  await $.command.run({ command: 'sub-agents', args: 'choose' } as never)
   await $.tool.call({
     tool: 'Agent',
     tool_use_id: 't3',

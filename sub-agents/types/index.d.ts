@@ -16,6 +16,6 @@ export type AgentRow = {
 
 declare module 'claude-code' {
   interface PluginState {
-    subagentes: { agents: AgentRow[]; choose: boolean; now: number }
+    'sub-agents': { agents: AgentRow[]; choose: boolean; now: number }
   }
 }

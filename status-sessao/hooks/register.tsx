@@ -105,9 +105,9 @@ export const register: Register = on => {
         <Box flexDirection="row" flexWrap="wrap" columnGap={3}>
           {badge}
           {data &&
-            meter('ctx', 'contexto', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
+            meter('ctx', 'context', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
           {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
-          {data && meter('week', 'semana', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
+          {data && meter('week', 'week', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
         </Box>
         {beneath}
       </Box>

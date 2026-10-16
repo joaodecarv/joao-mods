@@ -1,6 +1,6 @@
 {
   "name": "status-sessao",
-  "version": "0.1.1",
-  "description": "Uma linha acima do prompt: repositório e branch em destaque, contexto, limite de 5h e limite semanal",
+  "version": "0.2.0",
+  "description": "One line above the prompt: repository and branch highlighted, context, 5h limit and weekly limit",
   "types": "./types/index.d.ts"
 }

@@ -1,0 +1,6 @@
+{
+  "name": "sub-agents",
+  "version": "0.2.0",
+  "description": "Pane with the status of each sub-agent and, when on, a choice of model and effort for each one, starting from Claude's suggestion",
+  "types": "./types/index.d.ts"
+}

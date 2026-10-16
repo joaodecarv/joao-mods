@@ -5,13 +5,13 @@ import type { AgentRow } from '../types'
 import { CANCEL, elapsed, label, options, parse, shortModel, tokens } from './choices'
 import type { Choice } from './choices'
 
-const PANE = 'subagentes'
-const TITLE = 'Subagentes'
+const PANE = 'sub-agents'
+const TITLE = 'Sub-agents'
 
-const agents = atom({ plugin: 'subagentes', key: 'agents' } as const, [] as AgentRow[])
-// On by default in every session; /subagentes escolher turns it off.
-const choose = atom({ plugin: 'subagentes', key: 'choose' } as const, true)
-const now = atom({ plugin: 'subagentes', key: 'now' } as const, 0)
+const agents = atom({ plugin: 'sub-agents', key: 'agents' } as const, [] as AgentRow[])
+// On by default in every session; /sub-agents choose turns it off.
+const choose = atom({ plugin: 'sub-agents', key: 'choose' } as const, true)
+const now = atom({ plugin: 'sub-agents', key: 'now' } as const, 0)
 
 // Sent once to the model, beside the next prompt, while choose mode is on.
 // Goes in the prompt's context rather than the system prompt, so the prompt cache survives.
@@ -31,7 +31,7 @@ async function setRow($: EngineInterface, id: string, fn: (row: AgentRow) => Age
 
 async function refreshStatus($: EngineInterface) {
   const running = (await read($, agents)).filter(a => a.status === 'running').length
-  $.ui.status(running === 0 ? undefined : `${running} subagente${running === 1 ? '' : 's'} rodando`)
+  $.ui.status(running === 0 ? undefined : `${running} sub-agent${running === 1 ? '' : 's'} running`)
 }
 
 async function toggleChoose($: EngineInterface): Promise<boolean> {
@@ -45,8 +45,8 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const result = await next(e)
     await $.command.register({
-      name: 'subagentes',
-      description: 'Abre o painel de subagentes; "/subagentes escolher" liga ou desliga a escolha de modelo e esforço',
+      name: 'sub-agents',
+      description: 'Opens the sub-agents pane; "/sub-agents choose" turns model and effort choice on or off',
     })
     // Ticks the elapsed time and reconciles statuses, only while something runs.
     $.clock.every(1000, () => {
@@ -72,17 +72,17 @@ export const register: Register = on => {
     return result
   })
 
-  on('command.run', { command: 'subagentes' }, async ($, e) => {
-    if (/^escolher\b/i.test(e.args.trim())) {
+  on('command.run', { command: 'sub-agents' }, async ($, e) => {
+    if (/^choose\b/i.test(e.args.trim())) {
       const isOn = await toggleChoose($)
       return {
         text: isOn
-          ? 'Escolha de modelo e esforço ligada: cada subagente pede sua confirmação antes de rodar.'
-          : 'Escolha de modelo e esforço desligada: o Claude decide sozinho.',
+          ? 'Model and effort choice on: each sub-agent asks for your confirmation before it runs.'
+          : 'Model and effort choice off: Claude decides on its own.',
       }
     }
     await $.ui.open({ id: PANE, title: TITLE })
-    return { text: 'Painel de subagentes aberto.' }
+    return { text: 'Sub-agents pane opened.' }
   })
 
   on('prompt.submit', async ($, e, next) => {
@@ -101,8 +101,8 @@ export const register: Register = on => {
     const type = e.subagent_type ?? 'general-purpose'
     let answer: string
     try {
-      answer = await $.ui.ask(`Rodar "${e.description}" (${type}) com qual modelo e esforço?`, {
-        header: 'Subagente',
+      answer = await $.ui.ask(`Run "${e.description}" (${type}) with which model and effort?`, {
+        header: 'Sub-agent',
         options: labels,
       })
     } catch {
@@ -113,7 +113,7 @@ export const register: Register = on => {
     }
     let choice = byLabel.get(answer) ?? parse(answer)
     if (choice === null) {
-      $.ui.toast(`Não entendi "${answer}"; usando ${label(suggested)}`)
+      $.ui.toast(`Didn't understand "${answer}"; using ${label(suggested)}`)
       choice = suggested
     }
     efforts.set(e.tool_use_id, choice.effort)
@@ -187,16 +187,16 @@ export const register: Register = on => {
         <Box flexDirection="row" columnGap={2}>
           <Button
             key="choose"
-            label={isChoosing ? 'Escolher modelo: ligado' : 'Escolher modelo: desligado'}
+            label={isChoosing ? 'Choose model: on' : 'Choose model: off'}
             onPress={() => toggleChoose($)}
           />
           <Button
             key="clear"
-            label="Limpar concluídos"
+            label="Clear finished"
             onPress={() => update($, agents, rows => rows.filter(r => r.status === 'running'))}
           />
         </Box>
-        {list.length === 0 && <Text dimColor>Nenhum subagente nesta sessão.</Text>}
+        {list.length === 0 && <Text dimColor>No sub-agents in this session.</Text>}
         {list.slice(-room).map(a => (
           <Box key={a.id} flexDirection="row" columnGap={1}>
             <Text color={mark[a.status].color}>{mark[a.status].glyph}</Text>
@@ -209,7 +209,7 @@ export const register: Register = on => {
             <Text color="#4a8fe7">{a.effort ? `${a.model} · ${a.effort}` : a.model}</Text>
             <Text dimColor>{elapsed((a.endedAt ?? at) - a.startedAt)}</Text>
             <Text dimColor>
-              {a.tools} ferr.{a.lastTool && a.status === 'running' ? ` · ${a.lastTool}` : ''}
+              {a.tools} tools{a.lastTool && a.status === 'running' ? ` · ${a.lastTool}` : ''}
             </Text>
             {a.tokens !== null && <Text dimColor>{tokens(a.tokens)} tok</Text>}
           </Box>

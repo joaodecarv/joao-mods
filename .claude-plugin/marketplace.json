@@ -5,19 +5,19 @@
   },
   "plugins": [
     {
-      "name": "subagentes",
-      "source": "./subagentes",
-      "description": "Painel de status dos subagentes e escolha de modelo e esforço por subagente, com aprovação"
+      "name": "sub-agents",
+      "source": "./sub-agents",
+      "description": "Sub-agent status pane and per-sub-agent model and effort choice, with approval"
     },
     {
       "name": "status-sessao",
       "source": "./status-sessao",
-      "description": "Uma linha acima do prompt: repositório e branch em destaque, contexto, limite de 5h e semanal"
+      "description": "One line above the prompt: repository and branch highlighted, context, 5h and weekly limits"
     },
     {
       "name": "replay-theater",
       "source": "./replay-theater",
-      "description": "Replay Theater (cópia do claude-code-playground): passo a passo das edições do último turno, sem esconder a banda dos outros mods"
+      "description": "Replay Theater (copy from claude-code-playground): step through the last turn's edits without hiding other mods' band"
     }
   ]
 }

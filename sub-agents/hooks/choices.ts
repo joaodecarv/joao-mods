@@ -17,11 +17,11 @@ const LADDER: readonly Required<Choice>[] = [
   { model: 'fable', effort: 'high' },
 ]
 
-export const CANCEL = 'Cancelar'
+export const CANCEL = 'Cancel'
 
 export function label(c: Choice): string {
-  if (!c.model && !c.effort) return 'padrão do agente'
-  return [c.model ?? 'modelo padrão', c.effort ?? 'esforço padrão'].join(' · ')
+  if (!c.model && !c.effort) return 'agent default'
+  return [c.model ?? 'default model', c.effort ?? 'default effort'].join(' · ')
 }
 
 function rung(c: Choice): number {
@@ -31,10 +31,10 @@ function rung(c: Choice): number {
   return sameModel >= 0 ? sameModel : 4
 }
 
-/** Up to four options: the suggestion, one rung cheaper, one rung stronger, and Cancelar. */
+/** Up to four options: the suggestion, one rung cheaper, one rung stronger, and Cancel. */
 export function options(suggested: Choice): { labels: string[]; byLabel: Map<string, Choice> } {
   const byLabel = new Map<string, Choice>()
-  byLabel.set(`${label(suggested)} (sugestão)`, suggested)
+  byLabel.set(`${label(suggested)} (suggested)`, suggested)
   const i = rung(suggested)
   for (const j of [i - 1, i + 1]) {
     const alt = LADDER[j]
