@@ -26,6 +26,11 @@ test('the band shows the branch and the meters', async ($, on) => {
   on('fs.exists', ($, e) => ({ value: e.path === '/home/u/app/.git' }) as never)
   on('fs.stat', () => ({ value: { kind: 'directory', size: 0, mtimeMs: 0, isLink: false } }) as never)
   on('fs.read', () => ({ value: 'ref: refs/heads/main\n' }) as never)
+  // Stands for the engine with nothing else in the band.
+  on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+    const { Box } = $.ui.resolve(e)
+    return <Box />
+  })
 
   await $.session.measure({
     context: { tokens: 68_000, window: 200_000, percent: 34 },
@@ -47,6 +52,37 @@ test('the band shows the branch and the meters', async ($, on) => {
     expect(await ui.find({ type: 'Text', text: /^34%$/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /^72%$/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /^91%$/ })).toBeDefined()
+    await ui.unmount()
+  }
+})
+
+test('the band keeps what another mod draws beneath it', async ($, on) => {
+  mock.clock(on)
+  on('session.measure', ($, e) => ({ changed: e.changed }))
+  on('session.cwd', () => ({ value: '/home/u/app' }))
+  on('fs.exists', ($, e) => ({ value: e.path === '/home/u/app/.git' }) as never)
+  on('fs.stat', () => ({ value: { kind: 'directory', size: 0, mtimeMs: 0, isLink: false } }) as never)
+  on('fs.read', () => ({ value: 'ref: refs/heads/feat/x\n' }) as never)
+  on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+    const { Text } = $.ui.resolve(e)
+    return <Text>▶ Replay: 2 edits</Text>
+  })
+
+  await $.session.measure({
+    context: { tokens: 1_000, window: 200_000, percent: 1 },
+    rateLimits: [],
+    changed: ['context', 'rateLimits'],
+  })
+
+  for (const surface of ['terminal', 'desktop'] as const) {
+    const ui = await $.ui.mount({
+      plugin: 'status-sessao',
+      surface,
+      component: 'AbovePrompt',
+      props: { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: 120, scroll: { offset: 0, bodyRows: 20 }, view: {} },
+    })
+    expect(await ui.find({ type: 'Text', text: /app · feat\/x/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /Replay: 2 edits/ })).toBeDefined()
     await ui.unmount()
   }
 })

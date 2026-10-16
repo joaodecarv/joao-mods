@@ -96,13 +96,20 @@ export const register: Register = on => {
       </Text>
     )
 
+    // The band has one instance for every plugin: draw what is beneath (another
+    // mod's band) under this row instead of replacing it.
+    const beneath = await next(e)
+
     return (
-      <Box flexDirection="row" flexWrap="wrap" columnGap={3}>
-        {badge}
-        {data &&
-          meter('ctx', 'contexto', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
-        {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
-        {data && meter('week', 'semana', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
+      <Box flexDirection="column">
+        <Box flexDirection="row" flexWrap="wrap" columnGap={3}>
+          {badge}
+          {data &&
+            meter('ctx', 'contexto', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
+          {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
+          {data && meter('week', 'semana', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
+        </Box>
+        {beneath}
       </Box>
     )
   })

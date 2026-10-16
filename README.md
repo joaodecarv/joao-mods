@@ -1,8 +1,8 @@
 # joao-mods
 
-Marketplace local de mods do Claude Code: `status-sessao` e `subagentes`.
+Marketplace local de mods do Claude Code: `status-sessao`, `subagentes` e `replay-theater`. O `replay-theater` é uma cópia do mod de `anthropics/claude-code-playground`, alterada para não esconder a banda do `status-sessao`.
 
-Também uso três mods de terceiros, que não estão neste repo: Blast Radius e Replay Theater (de `anthropics/claude-code-playground`) e Cache Tax (de `karanb192/claude-code-mods`). Os passos abaixo instalam tudo.
+Também uso dois mods de terceiros, que não estão neste repo: Blast Radius (de `anthropics/claude-code-playground`) e Cache Tax (de `karanb192/claude-code-mods`). Os passos abaixo instalam tudo.
 
 ## Instalar em outra máquina
 
@@ -39,8 +39,8 @@ Depois junte isto ao `~/.claude/settings.json`. Troque `<HOME>` pelo seu diretó
 "enabledPlugins": {
   "subagentes@joao-mods": true,
   "status-sessao@joao-mods": true,
+  "replay-theater@joao-mods": true,
   "blast-radius@claude-code-playground-mods": true,
-  "replay-theater@claude-code-playground-mods": true,
   "cache-tax@claude-code-mods": true
 }
 ```

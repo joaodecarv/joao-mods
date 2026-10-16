@@ -13,6 +13,11 @@
       "name": "status-sessao",
       "source": "./status-sessao",
       "description": "Uma linha acima do prompt: repositório e branch em destaque, contexto, limite de 5h e semanal"
+    },
+    {
+      "name": "replay-theater",
+      "source": "./replay-theater",
+      "description": "Replay Theater (cópia do claude-code-playground): passo a passo das edições do último turno, sem esconder a banda dos outros mods"
     }
   ]
 }
