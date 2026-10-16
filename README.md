@@ -7,13 +7,13 @@ Marketplace local de mods do Claude Code: `status-sessao` e `subagentes`.
 Clone para a pasta de marketplaces locais:
 
 ```
-git clone https://github.com/Jooj02/joao-mods.git ~/.claude/local-marketplaces/joao-mods
+git clone https://github.com/joaodecarv/joao-mods.git ~/.claude/local-marketplaces/joao-mods
 ```
 
 No Windows (PowerShell):
 
 ```
-git clone https://github.com/Jooj02/joao-mods.git "$env:USERPROFILE\.claude\local-marketplaces\joao-mods"
+git clone https://github.com/joaodecarv/joao-mods.git "$env:USERPROFILE\.claude\local-marketplaces\joao-mods"
 ```
 
 Depois adicione ao `~/.claude/settings.json` (no Windows, use o caminho completo, ex. `C:/Users/<você>/.claude/local-marketplaces/joao-mods`):
