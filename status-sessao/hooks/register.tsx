@@ -2,12 +2,10 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Git, Usage } from '../types'
-import { BODY_COLOR, clawdFrame, DANCES, frameCount, HATS, pick, WIDTH } from './clawd'
 import { bar, basename, isEmpty, isProtected, level, parent, parseGitFile, parseHead, resetIn, tokens, usage } from './format'
 
 const usageAtom = atom({ plugin: 'status-sessao', key: 'usage' } as const, null as Usage | null)
 const gitAtom = atom({ plugin: 'status-sessao', key: 'git' } as const, null as Git | null)
-const frameAtom = atom({ plugin: 'status-sessao', key: 'frame' } as const, 0)
 
 // Reads .git/HEAD walking up from the session folder; runs no process.
 async function readGit($: EngineInterface): Promise<Git | null> {
@@ -35,22 +33,12 @@ async function refreshGit($: EngineInterface) {
   await update($, gitAtom, () => git)
 }
 
-export const register: Register = (on, options) => {
-  // "random" (the default) picks once per load, so each session gets its own.
-  const dance = pick(options.dance, DANCES, DANCES.filter(d => d !== 'still'), Math.random)
-  const hat = pick(options.hat, HATS, HATS, Math.random)
-
+export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const result = await next(e)
     const now = await $.session.usage()
     await update($, usageAtom, () => usage(now.context, now.rateLimits))
     await refreshGit($)
-    // Steps Clawd's dance at the band's right end; each write redraws the band.
-    if (frameCount(dance) > 1) {
-      $.clock.every(250, () => {
-        void update($, frameAtom, n => (n + 1) % frameCount(dance))
-      })
-    }
     return result
   })
 
@@ -74,7 +62,6 @@ export const register: Register = (on, options) => {
     if (e.props.hasSurvey || (data === null && git === null)) return next(e)
 
     const now = await $.clock.now()
-    const clawd = clawdFrame(dance, hat, await read($, frameAtom))
     const { Box, Text } = $.ui.resolve(e)
 
     const meter = (key: string, name: string, percent: number | null, detail: string | null) => {
@@ -116,22 +103,12 @@ export const register: Register = (on, options) => {
 
     return (
       <Box flexDirection="column" rowGap={hasBeneath ? 1 : 0}>
-        <Box flexDirection="row" justifyContent="space-between" columnGap={2}>
-          <Box flexDirection="row" flexWrap="wrap" columnGap={3} flexShrink={1}>
-            {badge}
-            {data &&
-              meter('ctx', 'context', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
-            {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
-            {data && meter('week', 'week', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
-          </Box>
-          <Box flexDirection="column" flexShrink={0} width={WIDTH}>
-            {clawd.hat && <Text color={clawd.hat.color}>{clawd.hat.row}</Text>}
-            {clawd.body.map((row, i) => (
-              <Text key={`clawd${i}`} color={BODY_COLOR}>
-                {row}
-              </Text>
-            ))}
-          </Box>
+        <Box flexDirection="row" flexWrap="wrap" columnGap={3}>
+          {badge}
+          {data &&
+            meter('ctx', 'context', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
+          {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
+          {data && meter('week', 'week', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
         </Box>
         {hasBeneath && beneath}
       </Box>

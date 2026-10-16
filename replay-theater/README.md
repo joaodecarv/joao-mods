@@ -1,4 +1,4 @@
-> Cópia de `claude-code/mods/replay-theater` de [anthropics/claude-code-playground](https://github.com/anthropics/claude-code-playground) (commit 569c528, Apache-2.0). Alterada: o aviso acima do prompt passa a desenhar a banda dos outros mods abaixo dele (`next(e)`), em vez de substituí-la.
+> Cópia de `claude-code/mods/replay-theater` de [anthropics/claude-code-playground](https://github.com/anthropics/claude-code-playground) (commit 569c528, Apache-2.0). Alterada: o aviso acima do prompt passa a desenhar a banda dos outros mods abaixo dele (`next(e)`), em vez de substituí-la; e o aviso some com o botão Dismiss (`x`) ou quando você manda o próximo prompt (o `/replay` continua abrindo o último turno).
 
 # Replay Theater
 

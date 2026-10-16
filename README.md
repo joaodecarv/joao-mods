@@ -47,21 +47,6 @@ Depois junte isto ao `~/.claude/settings.json`. Troque `<HOME>` pelo seu diretó
 
 Reinicie o Claude Code. Se algum plugin não aparecer, instale pelo `/plugin` em um terminal `claude`.
 
-## Clawd no status-sessao
-
-O `status-sessao` desenha o Clawd dançando no canto direito da barra. A dança e o chapéu são opções do plugin, editáveis no menu de config do `/plugin` ou no `settings.json`:
-
-```json
-"pluginConfigs": {
-  "status-sessao@joao-mods": { "options": { "dance": "party", "hat": "tophat" } }
-}
-```
-
-- `dance`: `random` (padrão), `wave`, `shuffle`, `sway`, `party`, `still`
-- `hat`: `random` (padrão), `none`, `tophat`, `party`, `crown`, `cap`
-
-Com `random`, cada sessão sorteia a sua.
-
 ## Sincronizar
 
 Neste repo: `git pull` antes de mexer, `git commit` + `git push` depois. Para atualizar o playground, rode `git pull` no clone dele.

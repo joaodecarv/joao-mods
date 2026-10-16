@@ -1,6 +1,5 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { clawdFrame, DANCES, HATS, WIDTH, pick } from '../hooks/clawd'
 import { bar, isProtected, level, parseGitFile, parseHead, resetIn } from '../hooks/format'
 
 test('levels, bars and resets', async () => {
@@ -88,8 +87,8 @@ test('the band keeps what another mod draws beneath it', async ($, on) => {
   }
 })
 
-test('Clawd dances at the right end, and the band spaces out what is beneath', { options: { dance: 'wave', hat: 'crown' } }, async ($, on) => {
-  const clock = mock.clock(on)
+test('the band spaces out what is beneath', async ($, on) => {
+  mock.clock(on)
   on('session.start', ($, e) => ({ cwd: e.cwd }) as never)
   on('session.usage', () => ({ value: { context: { tokens: 1_000, window: 200_000, percent: 1 }, rateLimits: [] } }) as never)
   on('session.cwd', () => ({ value: '/tmp/none' }))
@@ -104,10 +103,6 @@ test('Clawd dances at the right end, and the band spaces out what is beneath', {
   const props = { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: 120, scroll: { offset: 0, bodyRows: 20 }, view: {} }
   const ui = await $.ui.mount({ plugin: 'status-sessao', surface: 'terminal', component: 'AbovePrompt', props })
 
-  expect(await ui.find({ type: 'Text', text: /▙▟▙▟▌/ })).toBeDefined()
-  expect(await ui.find({ type: 'Text', text: /^  ▐▛███▜▌/ })).toBeDefined()
-  await clock.advance(250)
-  expect(await ui.find({ type: 'Text', text: /^ ▗▐▛███▜▌/ })).toBeDefined()
   expect(((await ui.drawn()) as { props?: { rowGap?: number } }).props?.rowGap).toBe(0)
   await ui.unmount()
 
@@ -118,13 +113,3 @@ test('Clawd dances at the right end, and the band spaces out what is beneath', {
   await withOther.unmount()
 })
 
-test('every Clawd frame keeps the same width', async () => {
-  for (const dance of DANCES)
-    for (const hat of HATS)
-      for (let n = 0; n < 8; n++) {
-        const f = clawdFrame(dance, hat, n)
-        for (const row of [...f.body, ...(f.hat ? [f.hat.row] : [])]) expect([...row].length).toBe(WIDTH)
-      }
-  expect(pick('crown', HATS, HATS, () => 0)).toBe('crown')
-  expect(pick('random', HATS, ['cap'], () => 0.5)).toBe('cap')
-})

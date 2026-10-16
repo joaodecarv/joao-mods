@@ -13,7 +13,8 @@ const EDIT_TOOLS = new Set(["Edit", "Write", "MultiEdit"]);
 
 // Module state. `pending` fills during a turn; `replay` is the last finished
 // turn's steps, the ones the pane shows.
-const state = { pending: [], replay: [], index: 0, isOpen: false, inBand: false, turns: 0 };
+// hintHidden: the band hint was dismissed or a new prompt was sent; /replay still opens the last turn.
+const state = { pending: [], replay: [], index: 0, isOpen: false, inBand: false, turns: 0, hintHidden: false };
 
 function relPath(cwd, path) {
   if (!path) return "(unknown file)";
@@ -103,7 +104,7 @@ async function stepsFor($, e) {
 
 function hintText() {
   const n = state.replay.length;
-  return `▶ Replay: ${n} edit${n === 1 ? "" : "s"} (press r)`;
+  return `▶ Replay: ${n} edit${n === 1 ? "" : "s"} (r to open, x to dismiss)`;
 }
 
 async function openReplay($) {
@@ -203,6 +204,15 @@ export function register(on, options) {
     return next(e);
   });
 
+  // The hint is about the last turn: it goes once the person moves on.
+  on("prompt.submit", ($, e, next) => {
+    if (state.replay.length && !state.hintHidden) {
+      state.hintHidden = true;
+      $.ui.invalidate("ui.render");
+    }
+    return next(e);
+  });
+
   on("turn.start", ($, e, next) => {
     if (!e.agentId) state.pending = [];
     return next(e);
@@ -215,6 +225,7 @@ export function register(on, options) {
     state.replay = state.pending;
     state.pending = [];
     state.index = 0;
+    state.hintHidden = false;
     state.turns++;
     $.ui.invalidate("ui.render");
     return r;
@@ -225,7 +236,7 @@ export function register(on, options) {
   // what is beneath (another mod's band) rather than in its place.
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
     if (state.isOpen && state.inBand) return replayView($, e, true);
-    if (!state.replay.length || state.isOpen) return next(e);
+    if (!state.replay.length || state.isOpen || state.hintHidden) return next(e);
     const { Box, Text, Button } = $.ui.resolve(e);
     const beneath = await next(e);
     return Box({
@@ -236,6 +247,7 @@ export function register(on, options) {
           children: [
             Text({ color: "magenta", bold: true, children: hintText() }),
             Button({ key: "open-replay", label: "Replay", hotkey: "r", onPress: () => openReplay($) }),
+            Button({ key: "dismiss-replay", label: "Dismiss", hotkey: "x", onPress: () => { state.hintHidden = true; $.ui.invalidate("ui.render"); } }),
           ],
         }),
         beneath,
