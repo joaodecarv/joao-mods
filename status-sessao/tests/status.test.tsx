@@ -86,3 +86,32 @@ test('the band keeps what another mod draws beneath it', async ($, on) => {
     await ui.unmount()
   }
 })
+
+test('the Claude mark steps at the right end, and the band spaces out what is beneath', async ($, on) => {
+  const clock = mock.clock(on)
+  on('session.start', ($, e) => ({ cwd: e.cwd }) as never)
+  on('session.usage', () => ({ value: { context: { tokens: 1_000, window: 200_000, percent: 1 }, rateLimits: [] } }) as never)
+  on('session.cwd', () => ({ value: '/tmp/none' }))
+  on('fs.exists', () => ({ value: false }) as never)
+  let other = false
+  on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+    const { Box, Text } = $.ui.resolve(e)
+    return other ? <Text>▶ Replay: 2 edits</Text> : <Box />
+  })
+
+  await $.session.start({ cwd: '/tmp/none', surface: 'terminal' } as never)
+  const props = { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: 120, scroll: { offset: 0, bodyRows: 20 }, view: {} }
+  const ui = await $.ui.mount({ plugin: 'status-sessao', surface: 'terminal', component: 'AbovePrompt', props })
+
+  expect(await ui.find({ type: 'Text', text: /^·$/ })).toBeDefined()
+  await clock.advance(200)
+  expect(await ui.find({ type: 'Text', text: /^✢$/ })).toBeDefined()
+  expect(((await ui.drawn()) as { props?: { rowGap?: number } }).props?.rowGap).toBe(0)
+  await ui.unmount()
+
+  other = true
+  const withOther = await $.ui.mount({ plugin: 'status-sessao', surface: 'terminal', component: 'AbovePrompt', props })
+  expect(((await withOther.drawn()) as { props?: { rowGap?: number } }).props?.rowGap).toBe(1)
+  expect(await withOther.find({ type: 'Text', text: /Replay: 2 edits/ })).toBeDefined()
+  await withOther.unmount()
+})

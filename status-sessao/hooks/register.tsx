@@ -2,10 +2,11 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Git, Usage } from '../types'
-import { bar, basename, isProtected, level, parent, parseGitFile, parseHead, resetIn, tokens, usage } from './format'
+import { bar, basename, FRAMES, isEmpty, isProtected, level, parent, parseGitFile, parseHead, resetIn, tokens, usage } from './format'
 
 const usageAtom = atom({ plugin: 'status-sessao', key: 'usage' } as const, null as Usage | null)
 const gitAtom = atom({ plugin: 'status-sessao', key: 'git' } as const, null as Git | null)
+const frameAtom = atom({ plugin: 'status-sessao', key: 'frame' } as const, 0)
 
 // Reads .git/HEAD walking up from the session folder; runs no process.
 async function readGit($: EngineInterface): Promise<Git | null> {
@@ -39,6 +40,10 @@ export const register: Register = on => {
     const now = await $.session.usage()
     await update($, usageAtom, () => usage(now.context, now.rateLimits))
     await refreshGit($)
+    // Steps the Claude mark at the band's right end; each write redraws the band.
+    $.clock.every(200, () => {
+      void update($, frameAtom, n => (n + 1) % FRAMES.length)
+    })
     return result
   })
 
@@ -62,6 +67,7 @@ export const register: Register = on => {
     if (e.props.hasSurvey || (data === null && git === null)) return next(e)
 
     const now = await $.clock.now()
+    const frame = await read($, frameAtom)
     const { Box, Text } = $.ui.resolve(e)
 
     const meter = (key: string, name: string, percent: number | null, detail: string | null) => {
@@ -99,17 +105,23 @@ export const register: Register = on => {
     // The band has one instance for every plugin: draw what is beneath (another
     // mod's band) under this row instead of replacing it.
     const beneath = await next(e)
+    const hasBeneath = !isEmpty(beneath)
 
     return (
-      <Box flexDirection="column">
-        <Box flexDirection="row" flexWrap="wrap" columnGap={3}>
-          {badge}
-          {data &&
-            meter('ctx', 'context', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
-          {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
-          {data && meter('week', 'week', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
+      <Box flexDirection="column" rowGap={hasBeneath ? 1 : 0}>
+        <Box flexDirection="row" justifyContent="space-between" columnGap={2}>
+          <Box flexDirection="row" flexWrap="wrap" columnGap={3} flexShrink={1}>
+            {badge}
+            {data &&
+              meter('ctx', 'context', data.percent, data.tokens === null ? null : `${tokens(data.tokens)}/${tokens(data.window)}`)}
+            {data && meter('5h', '5h', data.session?.percent ?? null, data.session ? resetIn(data.session.resetsAt, now) : null)}
+            {data && meter('week', 'week', data.weekly?.percent ?? null, data.weekly ? resetIn(data.weekly.resetsAt, now) : null)}
+          </Box>
+          <Text color="#d97757">
+            {FRAMES[frame % FRAMES.length]}
+          </Text>
         </Box>
-        {beneath}
+        {hasBeneath && beneath}
       </Box>
     )
   })

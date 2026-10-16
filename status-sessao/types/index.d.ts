@@ -12,6 +12,6 @@ export type Git = { repo: string; branch: string; isDetached: boolean }
 
 declare module 'claude-code' {
   interface PluginState {
-    'status-sessao': { usage: Usage | null; git: Git | null }
+    'status-sessao': { usage: Usage | null; git: Git | null; frame: number }
   }
 }
